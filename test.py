@@ -44,7 +44,7 @@ class Board:
 				grid = self.getGrid(r,c)
 				self.map[r,c] = match(grid,self.match_dict)
 				#printimage(grid)
-		#print(self.map)
+		#print(self.map[:,-15:])
 		
 	def getGrid(self,r,c):
 		if r<0 or c<0 or r>=self.row_cnt or c>=self.col_cnt:
@@ -73,8 +73,8 @@ class Board:
 		#print(self.unexp_edge)
 		for i in range(self.unexp_edge_num):
 			self.drawCircle(self.unexp_edge[i],self.case_all[i]/self.case_num)
-			#print('({},{}): {}'.format(self.unexp_edge[i][0],self.unexp_edge[i][1],self.case_all[i]/self.case_num))
-		#print('inside grid: {}'.format(self.inside_all_num/(self.case_num*self.unexp_inside_num)))
+			print('p{} = {}'.format(self.unexp_edge[i],self.case_all[i]/self.case_num))
+		print('inside grid: {}'.format(self.inside_all_num/(self.case_num*self.unexp_inside_num)))
 		for r,c in self.unexp_all:
 			if (r,c) in self.unexp_edge: continue
 			self.drawCircle((r,c),self.inside_all_num/(self.case_num*self.unexp_inside_num))
@@ -94,12 +94,12 @@ class Board:
 		self.map[self.unexp_edge[n]] = -3 # is mine
 		self.case_ima[n] = 1
 		if self.check(self.unexp_edge[n]) and rem:
-			#print((n,1))
+			#print((n,self.unexp_edge[n],1))
 			self.dfs(n+1,rem-1)
 		self.map[self.unexp_edge[n]] = -4 # not mine
 		self.case_ima[n] = 0
 		if self.check(self.unexp_edge[n]):
-			#print((n,0))
+			#print((n,self.unexp_edge[n],0))
 			self.dfs(n+1,rem)
 		self.map[self.unexp_edge[n]] = -2
 		
@@ -121,8 +121,13 @@ class Board:
 		r,c = codi
 		y = (self.row_edge[r]+self.row_edge[r+1])//2
 		x = (self.col_edge[c]+self.col_edge[c+1])//2
-		G = (1-p)*255
-		cv2.circle(self.img_raw,(x,y), 10, (0,G,255-G), -1)
+		if p <= 0.5:
+			G = 255
+			R = 2*p*255
+		else:
+			G = 2*(1-p)*255
+			R = 255
+		cv2.circle(self.img_raw,(x,y), 10, (0,G,R), -1)
 		
 def normed_image(img):
 	return cv2.resize(img,(10,10),cv2.INTER_AREA)
@@ -177,7 +182,7 @@ if __name__ == '__main__':
 			match_img = normed_image(match_img)
 			match_dict[filename] = match_img
 
-	img = cv2.imread('1547914941(1).png',True)
-	board = Board(img,match_dict,6)
+	img = cv2.imread('case/3/1547998787(1).jpg',True)
+	board = Board(img,match_dict,99)
 	board.createBoard()
 	board.doSomething()
